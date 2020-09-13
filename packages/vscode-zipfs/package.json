@@ -66,7 +66,7 @@
     }
   },
   "devDependencies": {
-    "@types/vscode": "^1.46.0",
+    "@types/vscode": "^1.49.0",
     "@yarnpkg/fslib": "workspace:^2.2.1",
     "@yarnpkg/libzip": "workspace:^2.2.0",
     "@yarnpkg/pnpify": "workspace:^2.2.1",

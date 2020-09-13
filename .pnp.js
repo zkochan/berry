@@ -7856,10 +7856,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@types/vscode", [
-        ["npm:1.46.0", {
-          "packageLocation": "./.yarn/cache/@types-vscode-npm-1.46.0-a37250af62-68f95bf9dc.zip/node_modules/@types/vscode/",
+        ["npm:1.49.0", {
+          "packageLocation": "./.yarn/cache/@types-vscode-npm-1.49.0-77c06b4fd5-f648950d2f.zip/node_modules/@types/vscode/",
           "packageDependencies": [
-            ["@types/vscode", "npm:1.46.0"]
+            ["@types/vscode", "npm:1.49.0"]
           ],
           "linkType": "HARD",
         }]
@@ -34450,7 +34450,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/vscode-zipfs/",
           "packageDependencies": [
             ["vscode-zipfs", "workspace:packages/vscode-zipfs"],
-            ["@types/vscode", "npm:1.46.0"],
+            ["@types/vscode", "npm:1.49.0"],
             ["@yarnpkg/fslib", "workspace:packages/yarnpkg-fslib"],
             ["@yarnpkg/libzip", "workspace:packages/yarnpkg-libzip"],
             ["@yarnpkg/pnpify", "virtual:16110bda3ce959c103b1979c5d750ceb8ac9cfbd2049c118b6278e46e65aa65fd17e71e04a0ce5f75b7ca3203efd8e9c9b03c948a76c7f4bca807539915b5cfc#workspace:packages/yarnpkg-pnpify"],

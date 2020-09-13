@@ -22,11 +22,9 @@ type Link = {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  // @ts-expect-error - Types are not up to date
   vscode.window.registerTerminalLinkProvider({
-    // @ts-expect-error - Types are not up to date
     provideTerminalLinks: context => {
-      const line = (context.line as string).replace(/\\/g, `/`);
+      const line = context.line.replace(/\\/g, `/`);
 
       if (!line.match(/\.zip\//) && !line.match(/\$\$virtual\//))
         return [];
