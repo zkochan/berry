@@ -26,21 +26,24 @@ export function activate(context: vscode.ExtensionContext) {
   vscode.window.registerTerminalLinkProvider({
     // @ts-expect-error - Types are not up to date
     provideTerminalLinks: context => {
-      const line = context.line as string;
-      const startIndex = line.indexOf(`.yarn/$$virtual`);
-      if (startIndex === -1) return [];
+      const line = (context.line as string).replace(/\\/g, `/`);
+
+      if (!line.match(/\.zip\//) && !line.match(/\$\$virtual\//))
+        return [];
 
       const linkResult: Array<Link> = [];
 
-      const matcher = /[^\s]*\.yarn\/\$\$virtual[^\s]+/g;
+      const matcher = /[^\s]*((\$\$virtual)|(\.zip\/))[^\s]+/g;
       let match: RegExpExecArray | null = null;
       while ((match = matcher.exec(line))) {
-        linkResult.push({
-          startIndex: match.index,
-          length: match[0].length,
-          data: match[0],
-          tooltip: `Open file in editor`,
-        });
+        if (npath.isAbsolute(match[0])) {
+          linkResult.push({
+            startIndex: match.index,
+            length: match[0].length,
+            data: match[0],
+            tooltip: `Open file in editor`,
+          });
+        }
       }
 
       return linkResult;
