@@ -46,9 +46,21 @@ export function activate(context: vscode.ExtensionContext) {
       return linkResult;
     },
     handleTerminalLink: async (link: Link) => {
-      const parsed = vscode.Uri.parse(`zip:${link.data.replace(/^\/?/, `/`)}`);
+      const selectors = link.data.match(/(:(\d+))(:(\d+))?$/);
 
-      await vscode.window.showTextDocument(parsed);
+      let selection: vscode.Range | undefined = undefined;
+      if (selectors) {
+        const startLine = Math.max(Number(selectors[2]) - 1, 0);
+        const startColumn = Math.max(Number(selectors[4] ?? 0) - 1, 0);
+        selection = new vscode.Range(startLine, startColumn, startLine, startColumn);
+      }
+
+      await vscode.window.showTextDocument(
+        vscode.Uri.parse(`zip:${link.data.substr(0, selectors?.index).replace(/^\/?/, `/`)}`),
+        {
+          selection,
+        }
+      );
     },
   });
 
