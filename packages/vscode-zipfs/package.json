@@ -81,8 +81,8 @@
     "package:vscode-zipfs": "run package",
     "package": "run vsce package --yarn",
     "build:vscode-zipfs": "run build",
-    "build": "run webpack-cli",
-    "watch": "run webpack-cli --watch --mode development",
+    "build": "webpack-cli",
+    "watch": "NODE_ENV=development webpack-cli --watch",
     "code": "code --extensionDevelopmentPath=\"$(pwd)\" \"$(pwd)\""
   },
   "repository": {
