@@ -168,15 +168,16 @@ export async function request(target: string, body: Body, {configuration, header
   });
 }
 
-export async function get(target: string, {configuration, json, jsonResponse = json, ...rest}: Options) {
-  let entry = cache.get(target);
+export async function get(target: string, {configuration, json, jsonResponse = json, headers, ...rest}: Options) {
+  const cacheKey = `${target}-${headers?.Accept}`;
+  let entry = cache.get(cacheKey);
 
   if (!entry) {
-    entry = request(target, null, {configuration, ...rest}).then(response => {
-      cache.set(target, response.body);
+    entry = request(target, null, {configuration, headers, ...rest}).then(response => {
+      cache.set(cacheKey, response.body);
       return response.body;
     });
-    cache.set(target, entry);
+    cache.set(cacheKey, entry);
   }
 
   if (Buffer.isBuffer(entry) === false)

@@ -42,6 +42,9 @@ export class NpmTagResolver implements Resolver {
       configuration: opts.project.configuration,
       ident: descriptor,
       jsonResponse: true,
+      headers: {
+        Accept: `application/vnd.npm.install-v1+json`,
+      },
     });
 
     if (!Object.prototype.hasOwnProperty.call(registryData, `dist-tags`))

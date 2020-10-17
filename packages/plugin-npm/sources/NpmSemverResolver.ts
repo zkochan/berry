@@ -51,6 +51,9 @@ export class NpmSemverResolver implements Resolver {
       configuration: opts.project.configuration,
       ident: descriptor,
       jsonResponse: true,
+      headers: {
+        Accept: `application/vnd.npm.install-v1+json`,
+      },
     });
 
     const candidates = Object.keys(registryData.versions)
@@ -112,6 +115,9 @@ export class NpmSemverResolver implements Resolver {
       configuration: opts.project.configuration,
       ident: locator,
       jsonResponse: true,
+      headers: {
+        Accept: `application/vnd.npm.install-v1+json`,
+      },
     });
 
     if (!Object.prototype.hasOwnProperty.call(registryData, `versions`))
@@ -127,8 +133,17 @@ export class NpmSemverResolver implements Resolver {
     // This is because the npm registry will automatically add a `node-gyp rebuild` install script
     // in the metadata if there is not already an install script and a binding.gyp file exists.
     // Also, node-gyp is not always set as a dependency in packages, so it will also be added if used in scripts.
-    if (!manifest.dependencies.has(NODE_GYP_IDENT.identHash) && !manifest.peerDependencies.has(NODE_GYP_IDENT.identHash)) {
-      for (const value of manifest.scripts.values()) {
+    if (manifest.raw.hasInstallScript && !manifest.hasConsumerDependency(NODE_GYP_IDENT)) {
+      const packageData = await npmHttpUtils.get(`${npmHttpUtils.getIdentUrl(locator)}/${version}`, {
+        configuration: opts.project.configuration,
+        ident: locator,
+        jsonResponse: true,
+      });
+
+      const detailedManifest = new Manifest();
+      detailedManifest.load(packageData);
+
+      for (const value of detailedManifest.scripts.values()) {
         if (value.match(NODE_GYP_MATCH)) {
           manifest.dependencies.set(NODE_GYP_IDENT.identHash, structUtils.makeDescriptor(NODE_GYP_IDENT, `latest`));
           opts.report.reportWarning(MessageName.NODE_GYP_INJECTED, `${structUtils.prettyLocator(opts.project.configuration, locator)}: Implicit dependencies on node-gyp are discouraged`);
