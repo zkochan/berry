@@ -123,8 +123,21 @@ export function applyPatch(pnpapi: PnpApi, opts: ApplyPatchOptions) {
     // Check if the module has already been created for the given file
 
     const cacheEntry = entry.cache[modulePath];
-    if (cacheEntry)
+    if (cacheEntry) {
+      // @ts-expect-error
+      if (!cacheEntry.loaded && !cacheEntry.isLoading && typeof cacheEntry.load === `function`) {
+        // @ts-expect-error
+        cacheEntry.isLoading = true;
+        try {
+          // @ts-expect-error
+          cacheEntry.load(modulePath);
+        } finally {
+          // @ts-expect-error
+          cacheEntry.isLoading = false;
+        }
+      }
       return cacheEntry.exports;
+    }
 
     // Create a new module and store it into the cache
 
@@ -147,8 +160,12 @@ export function applyPatch(pnpapi: PnpApi, opts: ApplyPatchOptions) {
     let hasThrown = true;
 
     try {
-    // @ts-expect-error
+      // @ts-expect-error
+      module.isLoading = true;
+      // @ts-expect-error
       module.load(modulePath);
+      // @ts-expect-error
+      module.isLoading = false;
       hasThrown = false;
     } finally {
       if (hasThrown) {
