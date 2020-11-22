@@ -27,6 +27,7 @@ export const getPnpPath = (project: Project) => {
   return {
     main: ppath.join(project.cwd, mainFilename as Filename),
     other: ppath.join(project.cwd, otherFilename as Filename),
+    esmLoader: ppath.join(project.cwd, `experimental-pnp-esm-loader.js` as Filename),
   };
 };
 
@@ -35,17 +36,21 @@ export const quotePathIfNeeded = (path: string) => {
 };
 
 async function setupScriptEnvironment(project: Project, env: {[key: string]: string}, makePathWrapper: (name: string, argv0: string, args: Array<string>) => Promise<void>) {
-  const pnpPath: PortablePath = getPnpPath(project).main;
-  const pnpRequire = `--require ${quotePathIfNeeded(npath.fromPortablePath(pnpPath))}`;
+  const pnpPath = getPnpPath(project);
+  let pnpRequire = `--require ${quotePathIfNeeded(npath.fromPortablePath(pnpPath.main))}`;
 
-  if (pnpPath.includes(` `) && semver.lt(process.versions.node, `12.0.0`))
+  if (pnpPath.main.endsWith(`.cjs`) && xfs.existsSync(pnpPath.esmLoader))
+    pnpRequire = `${pnpRequire} --experimental-loader file:///${npath.fromPortablePath(pnpPath.esmLoader).replace(/\\/g, `/`)}`;
+
+  if (pnpPath.main.includes(` `) && semver.lt(process.versions.node, `12.0.0`))
     throw new Error(`Expected the build location to not include spaces when using Node < 12.0.0 (${process.versions.node})`);
 
-  if (xfs.existsSync(pnpPath)) {
+  if (xfs.existsSync(pnpPath.main)) {
     let nodeOptions = env.NODE_OPTIONS || ``;
 
     const pnpRegularExpression = /\s*--require\s+\S*\.pnp\.c?js\s*/g;
-    nodeOptions = nodeOptions.replace(pnpRegularExpression, ` `).trim();
+    const esmLoaderExpression = /\s*--experimental-loader\s+\S*experimental-pnp-esm-loader\.js\s*/;
+    nodeOptions = nodeOptions.replace(pnpRegularExpression, ` `).replace(esmLoaderExpression, ` `).trim();
 
     nodeOptions = nodeOptions ? `${pnpRequire} ${nodeOptions}` : pnpRequire;
 
@@ -54,8 +59,10 @@ async function setupScriptEnvironment(project: Project, env: {[key: string]: str
 }
 
 async function populateYarnPaths(project: Project, definePath: (path: PortablePath | null) => void) {
-  definePath(getPnpPath(project).main);
-  definePath(getPnpPath(project).other);
+  const pnpPath = getPnpPath(project);
+  definePath(pnpPath.main);
+  definePath(pnpPath.other);
+  definePath(pnpPath.esmLoader);
 
   definePath(project.configuration.get(`pnpDataPath`));
   definePath(project.configuration.get(`pnpUnpluggedFolder`));

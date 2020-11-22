@@ -297,6 +297,33 @@ export class PnpInstaller implements Installer {
       await xfs.chmodPromise(pnpDataPath, 0o644);
     }
 
+    if (pnpPath.main.endsWith(`.cjs`)) {
+      await xfs.writeFilePromise(pnpPath.esmLoader, `import { syncBuiltinESMExports, createRequire } from 'module';
+syncBuiltinESMExports();
+
+const pnpapi = createRequire(import.meta.url)('pnpapi');
+
+export async function resolve(specifier, context) {
+  const { parentURL = null } = context;
+
+  const resolvedPath = pnpapi.resolveRequest(
+    specifier.replace('file:///', ''),
+    parentURL && parentURL.replace('file:///', '')
+  );
+
+  if (!resolvedPath) {
+    throw new Error(
+      \`Assertion failed: resolveRequest returned a falsy value for '\${specifier}' from '\${parentURL}'\`
+    );
+  }
+
+  return {
+    url: new URL(\`file:///\${resolvedPath}\`).href,
+  };
+}
+      `);
+    }
+
     const pnpUnpluggedFolder = this.opts.project.configuration.get(`pnpUnpluggedFolder`);
     if (this.unpluggedPaths.size === 0) {
       await xfs.removePromise(pnpUnpluggedFolder);
