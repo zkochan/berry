@@ -302,17 +302,33 @@ export class PnpInstaller implements Installer {
     }
 
     if (pnpPath.main.endsWith(`.cjs`)) {
-      await xfs.writeFilePromise(pnpPath.esmLoader, `import { syncBuiltinESMExports, createRequire } from 'module';
+      await xfs.writeFilePromise(pnpPath.esmLoader, `import { syncBuiltinESMExports, createRequire, builtinModules } from 'module';
+import { fileURLToPath, pathToFileURL, URL } from 'url';
 syncBuiltinESMExports();
 
 const pnpapi = createRequire(import.meta.url)('pnpapi');
 
-export async function resolve(specifier, context) {
+function isValidURL(str) {
+  try {
+    new URL(str);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const builtins = new Set([...builtinModules]);
+
+export async function resolve(specifier, context, defaultResolver) {
+  if (builtins.has(specifier) || isValidURL(specifier)) {
+    return defaultResolver(specifier, context, defaultResolver);
+  }
+
   const { parentURL = null } = context;
 
   const resolvedPath = pnpapi.resolveRequest(
-    specifier.replace('file:///', ''),
-    parentURL && parentURL.replace('file:///', '')
+    specifier,
+    parentURL ? fileURLToPath(parentURL) : undefined
   );
 
   if (!resolvedPath) {
@@ -322,7 +338,7 @@ export async function resolve(specifier, context) {
   }
 
   return {
-    url: new URL(\`file:///\${resolvedPath}\`).href,
+    url: pathToFileURL(resolvedPath).href,
   };
 }
       `);
