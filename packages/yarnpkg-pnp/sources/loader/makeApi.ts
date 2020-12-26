@@ -737,6 +737,8 @@ export function makeApi(runtimeState: RuntimeState, opts: MakeApiOptions): PnpAp
 
       // packageLocation is always absolute as it's returned by getPackageInformationSafe
       const dependencyLocation = dependencyInformation.packageLocation;
+      // probably packageLocation should contain the path to the package index file
+      // and from there we can resolve the subPath
 
       if (subPath) {
         // We use ppath.join instead of ppath.resolve because:

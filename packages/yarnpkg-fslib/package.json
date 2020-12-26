@@ -5,6 +5,7 @@
   "main": "./sources/index.ts",
   "sideEffects": false,
   "dependencies": {
+    "@pnpm/cafs": "^2.0.4",
     "@yarnpkg/libzip": "workspace:^2.2.1",
     "tslib": "^1.13.0"
   },
