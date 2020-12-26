@@ -1,4 +1,4 @@
-import {FakeFS, NodeFS, NativePath, PortablePath, VirtualFS, ZipOpenFS} from '@yarnpkg/fslib';
+import {CAFS, FakeFS, NodeFS, NativePath, PortablePath, VirtualFS, ZipOpenFS} from '@yarnpkg/fslib';
 import {getLibzipSync}                                                  from '@yarnpkg/libzip';
 import fs                                                               from 'fs';
 import Module                                                           from 'module';
@@ -28,12 +28,7 @@ const defaultPnpapiResolution = __filename;
 // 2. all requests going inside a Zip archive will be handled by the Zip fs implementation
 // 3. any remaining request will be forwarded to Node as-is
 const defaultFsLayer: FakeFS<PortablePath> = new VirtualFS({
-  baseFs: new ZipOpenFS({
-    baseFs: nodeFs,
-    libzip: getLibzipSync(),
-    maxOpenFiles: 80,
-    readOnlyArchives: true,
-  }),
+  baseFs: new CAFS(),
 });
 
 let manager: Manager;

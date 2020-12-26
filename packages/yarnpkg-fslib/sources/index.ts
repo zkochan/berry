@@ -36,6 +36,7 @@ export type {ParsedPath, PathUtils, FormatInputPathObject} from './path';
 export {npath, ppath, toFilename}                          from './path';
 
 export {AliasFS}                   from './AliasFS';
+export {CAFS} from './CAFS';
 export {FakeFS}                    from './FakeFS';
 export {CwdFS}                     from './CwdFS';
 export {JailFS}                    from './JailFS';
